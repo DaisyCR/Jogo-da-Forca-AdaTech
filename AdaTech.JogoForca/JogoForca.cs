@@ -5,16 +5,16 @@ internal class JogoForca
     private int _lives;
     private readonly string _keyword;
     private readonly string _theme;
+    private string _answer;
     private readonly HashSet<string> _previousGuesses;
-    private bool _victory;
 
     public JogoForca(string keyword, string theme, int lives)
     {
         this._lives = lives;
         this._keyword = keyword.ToUpper();
         this._theme = theme.ToUpper();
-        this._victory = false;
         this._previousGuesses = new HashSet<string>();
+        this._answer = "";
     }
     
     public void Play()
@@ -22,7 +22,7 @@ internal class JogoForca
         Console.WriteLine($"Vidas: {_lives}\nTema: {_theme}");
         DisplayCorrectGuesses();
         
-        while (_lives > 0 && _victory == false)
+        while (!HasPlayerLost() && !HasPlayerWon())
         {
             var guess = GetUserInput();
             if (!IsLetterInKeyword(guess))
@@ -36,9 +36,19 @@ internal class JogoForca
             DisplayCorrectGuesses();
         }
         
-        Console.WriteLine(_victory ? "Você venceu!": $"FIM DE JOGO! A palavra-chave era {_keyword}.");
+        Console.WriteLine(HasPlayerWon() ? "Você venceu!": $"FIM DE JOGO! A palavra-chave era {_keyword}.");
     }
-    
+
+    private bool HasPlayerWon()
+    {
+        return _answer == _keyword;
+    }
+
+    private bool HasPlayerLost()
+    {
+        return _lives == 0;
+    }
+
     private void DisplayWrongGuesses()
     {
         Console.Write("Escolhas Erradas: ");
@@ -51,22 +61,17 @@ internal class JogoForca
 
     private void DisplayCorrectGuesses()
     {
-        var display = "";
+        _answer = "";
         foreach (var letter in _keyword)
         {
             if (letter.ToString() == " ")
             {
-                display += letter;
+                _answer += letter;
                 continue;
             }
-            display += _previousGuesses.Contains(letter.ToString()) ? letter : "_";
+            _answer += _previousGuesses.Contains(letter.ToString()) ? letter : "_";
         }
-
-        if (display == _keyword)
-        {
-            _victory = true;
-        }
-        Console.WriteLine(display);
+        Console.WriteLine(_answer);
     }
     
     private bool IsLetterInKeyword(string guess)
